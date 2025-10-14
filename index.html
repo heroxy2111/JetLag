@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hide + Seek Map Generator</title>
+
+  <!-- Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <!-- App styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app-container">
+    <!-- Controls -->
+    <aside id="controls-panel">
+      <header>
+        <h1>HIDE<span>+</span>SEEK</h1>
+        <h2>Map Generator</h2>
+      </header>
+
+      <!-- Step 1: Areas -->
+      <section class="control-section">
+        <h3>1. Define Game Area</h3>
+
+        <div class="input-group-wrapper">
+          <div class="input-group">
+            <input
+              id="area-input"
+              type="text"
+              placeholder="e.g., Cologne, Seoul, Japan"
+              autocomplete="off"
+              aria-label="Search & add an administrative area"
+            />
+            <button id="add-area-btn" type="button">Add</button>
+          </div>
+          <div id="autocomplete-results" role="listbox" aria-label="Suggestions"></div>
+        </div>
+
+        <ul id="area-list" aria-live="polite"></ul>
+      </section>
+
+      <!-- Step 2: Transit -->
+      <section class="control-section">
+        <h3>2. Select Transit Types</h3>
+        <div id="transit-types" class="checkbox-group">
+          <!-- High speed/national -->
+          <label>
+            <input
+              type="checkbox"
+              data-osm-filter='relation["type"="route"]["route"="train"]["service"~"long_distance|night|high_speed"]'
+            />
+            High-Speed Rail
+          </label>
+
+          <!-- Regional/commuter -->
+          <label>
+            <input
+              type="checkbox"
+              data-osm-filter='relation["type"="route"]["route"~"train"]["service"~"regional|commuter"]'
+            />
+            Regional Rail
+          </label>
+
+          <!-- Rapid transit / tram -->
+          <label>
+            <input
+              type="checkbox"
+              data-osm-filter='relation["type"="route"]["route"~"subway|tram|monorail|light_rail"]'
+            />
+            Metro / Tram
+          </label>
+
+          <!-- Bus (optional, can be heavy) -->
+          <label>
+            <input
+              type="checkbox"
+              data-osm-filter='relation["type"="route"]["route"="bus"]'
+            />
+            Bus
+          </label>
+
+          <!-- Ferries -->
+          <label>
+            <input
+              type="checkbox"
+              data-osm-filter='relation["type"="route"]["route"="ferry"]'
+            />
+            Ferry
+          </label>
+        </div>
+      </section>
+
+      <!-- Generate -->
+      <button id="generate-map-btn" type="button" disabled>Generate Map</button>
+
+      <!-- Loading -->
+      <div id="loader" class="hidden" aria-live="polite">
+        <div class="spinner"></div>
+        <span>Processing map data…</span>
+      </div>
+
+      <!-- Results / Toggles -->
+      <section id="results-panel" class="hidden">
+        <hr />
+        <h3>Map Layers & Info</h3>
+
+        <div id="game-info">
+          <strong>Recommended Size:</strong>
+          <span id="game-size-indicator">–</span>
+        </div>
+
+        <div class="control-section">
+          <h4>Toggle Layers</h4>
+          <div class="checkbox-group">
+            <label>
+              <input id="toggle-hiding-zones" type="checkbox" />
+              Hiding Zones
+            </label>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h4>Toggle Points of Interest (POIs)</h4>
+          <div id="poi-types" class="checkbox-group">
+            <label><input class="poi-toggle" type="checkbox" value="amusement_park" /> Amusement Parks</label>
+            <label><input class="poi-toggle" type="checkbox" value="aquarium" /> Aquariums</label>
+            <label><input class="poi-toggle" type="checkbox" value="cinema" /> Cinemas</label>
+            <label><input class="poi-toggle" type="checkbox" value="embassy" /> Embassies</label>
+            <label><input class="poi-toggle" type="checkbox" value="golf" /> Golf Courses</label>
+            <label><input class="poi-toggle" type="checkbox" value="hospital" /> Hospitals</label>
+            <label><input class="poi-toggle" type="checkbox" value="airport" /> Intl. Airports</label>
+            <label><input class="poi-toggle" type="checkbox" value="library" /> Libraries</label>
+            <label><input class="poi-toggle" type="checkbox" value="museum" /> Museums</label>
+            <label><input class="poi-toggle" type="checkbox" value="park" /> Parks</label>
+            <label><input class="poi-toggle" type="checkbox" value="zoo" /> Zoos</label>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h4>Toggle Transit Lines</h4>
+          <div class="legend-actions">
+            <button id="legend-select-all" type="button">All</button>
+            <button id="legend-select-none" type="button">None</button>
+          </div>
+          <div id="line-legend" class="checkbox-group" aria-live="polite"></div>
+        </div>
+
+        <hr />
+        <button id="export-map-btn" type="button">Export as PNG</button>
+      </section>
+    </aside>
+
+    <!-- Map -->
+    <main id="map" role="application" aria-label="Map"></main>
+  </div>
+
+  <!-- Leaflet, Turf, export helper -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+  <script src="https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js"></script>
+
+  <!-- App logic -->
+  <script src="main.js"></script>
+</body>
+</html>
