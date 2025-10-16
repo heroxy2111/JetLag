@@ -488,9 +488,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             [out:json][timeout:300];
             (
-              ${finalFilter};
+                ${finalFilter};
+            ) -> .matching_transit;
+            node(r.matching_transit)["public_transport"="stop_position"]${bbox} -> .matching_stops;
+            (
+                relation.matching_transit;
+                way(r.matching_transit)${bbox};
+                node.matching_stops;
             );
-            (._;>;);
             out geom;
         `;
     }
